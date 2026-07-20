@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import joblib
 import pandas as pd
+from src.predict import load_model
 
 
 app = FastAPI(title='Energy Consumption Predictor')
-
-from src.predict import load_model, get_efficiency_rating
 model, feature_columns = load_model()
 
 
