@@ -1,11 +1,19 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import pandas as pd
 from src.predict import load_model
-
+import pandas as pd
 
 app = FastAPI(title='Energy Consumption Predictor')
-model, feature_columns = load_model()
+
+model = None
+feature_columns = None
+
+
+def get_model():
+    global model, feature_columns
+    if model is None:
+        model, feature_columns = load_model()
+    return model, feature_columns
 
 
 class BuildingData(BaseModel):
@@ -27,6 +35,7 @@ def health():
 
 @app.post('/predict')
 def predict(data: BuildingData):
+    model, feature_columns = get_model()
     input_df = pd.DataFrame([data.model_dump()])
     input_df = input_df.reindex(columns=feature_columns)
     prediction = model.predict(input_df)[0]
