@@ -11,8 +11,7 @@ from sklearn.linear_model import LinearRegression
 sys.path.insert(0, os.path.abspath('.'))
 
 
-@pytest.fixture(autouse=True)
-def create_test_model():
+def create_dummy_model():
     os.makedirs('models', exist_ok=True)
 
     np.random.seed(42)
@@ -34,9 +33,13 @@ def create_test_model():
     joblib.dump(pipeline, 'models/energy_pipeline.pkl')
     joblib.dump(list(X.columns), 'models/feature_columns.pkl')
 
-    yield
 
-    if os.path.exists('models/energy_pipeline.pkl'):
-        os.remove('models/energy_pipeline.pkl')
-    if os.path.exists('models/feature_columns.pkl'):
-        os.remove('models/feature_columns.pkl')
+create_dummy_model()
+
+
+@pytest.fixture(autouse=True)
+def reset_model_cache():
+    import api.main as main
+    main.model = None
+    main.feature_columns = None
+    yield
